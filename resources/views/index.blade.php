@@ -7,15 +7,22 @@
     <title>Test</title>
 
     <!-- UIkit CSS -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/uikit/3.0.0-rc.16/css/uikit.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/uikit/3.0.0-rc.16/css/uikit.min.css"/>
 
     <!-- UIkit JS -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/uikit/3.0.0-rc.16/js/uikit.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/uikit/3.0.0-rc.16/js/uikit-icons.min.js"></script>
 </head>
 <body>
-    <div class="uk-container">
-        ва
-    </div>
+<div class="uk-container">
+    <?php
+    $users = DB::table('users')->get();
+    foreach ($users as $user) {
+        echo $user->name;
+    }
+    ?>
+
+    {{--return view('user.index', ['users' => $users]);--}}
+</div>
 </body>
 </html>
