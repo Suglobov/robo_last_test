@@ -22,22 +22,21 @@ mysql
 
 1. Копируем файл ***.env.example*** в файл ***.env***
     Команда для линуска из папки проекта
-   ```cp .env.example .env```
+   ```
+   cp .env.example .env
+   ```
 
 1. Открыть доступ к папке проекта (777)
-    Команда для линуска из папки проекта
-    ```sudo chmod -R 777 storage && sudo chmod -R 777 bootstrap/cache```
+Команда для линуска из папки проекта
+    ```
+    sudo chmod -R 777 storage && sudo chmod -R 777 bootstrap/cache
+    ```
 
 1. Выполните команду в папке с проектом
     ```
-    make start
+    make setup
     ```
     Если ***make*** не установлен, то список команд можно взять из ***Makefile***
-
-1. Выполните команду в папке с проектом
-    ```
-    make start
-    ```
 
 1. Npm.  
     Выполните команду в папке с проектом
@@ -46,10 +45,14 @@ mysql
     ```
 
 1. Миграции и сиды.  
-Из папки с проекторм
-    ```docker-compose exec app php artisan migrate --seed```
-Для пересборки
-    ```docker-compose exec app php artisan migrate:refresh --seed```
+    Из папки с проекторм
+    ```
+    docker-compose exec app php artisan migrate --seed
+    ```
+    Для пересборки
+    ```
+    docker-compose exec app php artisan migrate:refresh --seed
+    ```
 
 1. Сайт доступен на <a href="http://localhost:8080/" target="_blank">http://localhost:8080/</a>
 
