@@ -1,0 +1,29 @@
+mysql:
+  image: mysql
+  container_name: database
+  ports:
+    - 33061:3306
+  environment:
+    MYSQL_DATABASE: laravel
+    MYSQL_ROOT_PASSWORD: 123456
+
+php:
+  image: php:fpm-alpine
+  container_name: php
+  volumes:
+    - .:/var/www/test/
+  entrypoint:
+    - php-fpm
+
+
+nginx:
+  image: nginx:alpine
+  container_name: nginx
+  volumes_from:
+    - php
+  volumes:
+    - ./docker/nginx.conf:/etc/nginx/conf.d/default.conf
+  links:
+    - php
+  ports:
+    - 8080:80
