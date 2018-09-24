@@ -17,9 +17,9 @@
 <div class="uk-container">
     <?php
     $users = DB::table('users')->get();
-    foreach ($users as $user) {
-        echo $user->name;
-    }
+//    foreach ($users as $user) {
+//        echo $user->name;
+//    }
     ?>
 
     {{--return view('user.index', ['users' => $users]);--}}
