@@ -53,6 +53,10 @@ mysql
     ```
     docker-compose exec app php artisan migrate:refresh --seed
     ```
+    Сиды отдельно
+    ```
+    docker-compose exec app php artisan db:seed
+    ```
 
 1. Сайт доступен на <a href="http://localhost:8080/" target="_blank">http://localhost:8080/</a>
 
