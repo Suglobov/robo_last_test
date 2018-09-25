@@ -14,3 +14,8 @@
 Route::get('/', function () {
     return view('index');
 });
+
+Route::post('/selectuser', 'SelectUserController@selectUser');
+
+Route::post('/defferred_operations', 'DefferredOperationController@defferredOperation');
+

@@ -12,104 +12,40 @@
     <!-- UIkit JS -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/uikit/3.0.0-rc.16/js/uikit.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/uikit/3.0.0-rc.16/js/uikit-icons.min.js"></script>
+
+    <script src="{{ asset('js/app.js ') }}"></script>
 </head>
 <body>
 <div class="uk-container">
     <?php
     $users = DB::table('users')->get();
+    $defferred_operations = DB::table('defferred_operations')->get();
     $tmp1 = DB::table('defferred_operations')
-        ->select(DB::raw('sum(amount) as a, user_id_from'))
+        ->select(DB::raw('sum(amount) as sum, user_id_from'))
         ->groupBy('user_id_from')
         ->get();
-    $defferred_operations = DB::table('defferred_operations')->get();
-
-    $user_balance_op = [];
+    $tmp2 = [];
     foreach ($tmp1 as $i) {
-        $user_balance_op[$i->user_id_from] = $i->a;
+        $tmp2[$i->user_id_from] = $i->sum;
     }
-    //    echo '<pre>' . print_r($user_balance_op, 1) . '</pre>';
+    $usersArr = [];
+    foreach ($users as $i) {
+        if (isset($tmp2[$i->id])) {
+            $usersArr[$i->id] = [
+                'deferred' => $tmp2[$i->id],
+            ];
+        } else {
+            $usersArr[$i->id] = [
+                'deferred' => 0,
+            ];
+        }
+        $usersArr[$i->id]['amount'] = $i->amount;
+    }
+    //    echo '<pre>';
+    //    print_r($usersArr);
+    //    die();
     ?>
-
-    <div class="uk-card uk-card-default uk-card-body uk-margin-bottom">
-        <ul uk-accordion>
-            <li class="uk-open">
-                <a class="uk-accordion-title" href="#">Список пользователей и их баланс:</a>
-                <div class="uk-accordion-content">
-                    <table class="uk-table uk-table-striped uk-table-small uk-table-middle">
-                        <tr>
-                            <th>id</th>
-                            <th>Средства на счете</th>
-                            <th>Свободные средства</th>
-                        </tr>
-                        @foreach ($users as $user)
-                            <tr>
-                                <td>{{ $user->id }}</td>
-                                <td>{{ $user->amount }}</td>
-                                <td>
-                                    @if (isset($user_balance_op[$user->id]))
-                                        {{ $user->amount - $user_balance_op[$user->id] }}
-                                    @else
-                                        {{ $user->amount }}
-                                    @endif
-                                </td>
-                            </tr>
-                        @endforeach
-                    </table>
-                </div>
-            </li>
-        </ul>
-    </div>
-    <div class="uk-card uk-card-default uk-card-body uk-margin-bottom">
-        <ul uk-accordion>
-            <li class="uk-open">
-                <a class="uk-accordion-title" href="#">Список запланированных операций:</a>
-                <div class="uk-accordion-content">
-                    <table class="uk-table uk-table-striped uk-table-small uk-table-middle">
-                        <tr>
-                            <th>id</th>
-                            <th>user_id_from</th>
-                            <th>user_id_to</th>
-                            <th>amount</th>
-                            <th>operation_datetime</th>
-                            <th>time_difference</th>
-                            <th>operation_completed</th>
-                        </tr>
-                        @foreach ($defferred_operations as $op)
-                            <tr>
-                                <td>{{ $op->id }}</td>
-                                <th>{{ $op->user_id_from }}</th>
-                                <th>{{ $op->user_id_to }}</th>
-                                <th>{{ $op->amount }}</th>
-                                <th>{{ $op->operation_datetime }}</th>
-                                <th>{{ $op->time_difference }}</th>
-                                <th>{{ $op->operation_completed }}</th>
-                            </tr>
-                        @endforeach
-                    </table>
-                </div>
-            </li>
-        </ul>
-    </div>
-    <div class="uk-card uk-card-default uk-card-body uk-margin-bottom">
-        <ul uk-accordion>
-            <li class="uk-open">
-                <a class="uk-accordion-title" href="#">Выбранный пользователь:</a>
-                <div class="uk-accordion-content">
-                    <div class="uk-margin">
-                        <select class="uk-select" name="selectuser">
-                            <option>Не выбран</option>
-                            @foreach ($users as $user)
-                                <option value="{{ $user->id }}">{{ $user->id }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div class="uk-margin">
-                        <button class="uk-button uk-button-default">Мой выбор</button>
-                    </div>
-                </div>
-            </li>
-        </ul>
-    </div>
+    @include('content', [$errors, $users, $defferred_operations, $usersArr])
 </div>
 </body>
 </html>
