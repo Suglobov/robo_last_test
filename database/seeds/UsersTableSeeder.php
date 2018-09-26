@@ -36,7 +36,6 @@ class UsersTableSeeder extends Seeder
             'user_id_to'          => $u2,
             'amount'              => rand(1000, 10000) / 10,
             'operation_datetime'  => $d1,
-            'time_difference'     => 0,
             'operation_completed' => false,
         ]);
         DB::table('defferred_operations')->insert([
@@ -44,7 +43,6 @@ class UsersTableSeeder extends Seeder
             'user_id_to'          => $u2,
             'amount'              => rand(100, 1000) / 10,
             'operation_datetime'  => $d2,
-            'time_difference'     => 0,
             'operation_completed' => false,
         ]);
         DB::table('defferred_operations')->insert([
@@ -52,7 +50,6 @@ class UsersTableSeeder extends Seeder
             'user_id_to'          => $u3,
             'amount'              => rand(100, 1000) / 10,
             'operation_datetime'  => $d3,
-            'time_difference'     => 0,
             'operation_completed' => false,
         ]);
         DB::table('defferred_operations')->insert([
@@ -60,7 +57,6 @@ class UsersTableSeeder extends Seeder
             'user_id_to'          => $u4,
             'amount'              => rand(10, 100) / 10,
             'operation_datetime'  => $d4,
-            'time_difference'     => 0,
             'operation_completed' => false,
         ]);
     }

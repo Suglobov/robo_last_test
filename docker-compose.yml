@@ -48,5 +48,10 @@ services:
       PMA_HOST: database
       MYSQL_ROOT_PASSWORD: secret
 
+  nodejs:
+    image: node:slim
+    volumes:
+      - ./:/var/www
+
 volumes:
   dbdata:

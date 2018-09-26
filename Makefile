@@ -2,6 +2,7 @@
 setup:
 	docker run --rm -v $(CURDIR):/app composer/composer install
 	docker-compose up -d --build
+	docker-compose run --rm nodejs npm install
 	docker-compose exec app php artisan key:generate
 	docker-compose exec app php artisan optimize
 

@@ -40,10 +40,9 @@ mysql
     Если ***make*** не установлен, то список команд можно взять из ***Makefile***
 
 1. Npm.  
-    Выполните команду в папке с проектом
-    ```
-    npm install
-    ```
+    ***npm install*** отрабатывает в ***docker*** во время исполнения ***make setup***  
+    но для работы ***npm run dev*** надо локально ***nodejs*** иметь  
+    и использовать ***npm i*** в папке проекта
 
 1. Миграции и сиды.  
     Из папки с проекторм
@@ -59,43 +58,18 @@ mysql
     docker-compose exec app php artisan db:seed
     ```
 
+1. На сервере запустите планировщик задач  
+    который будет запускать средствами ***docker-compose exec app php*** скрипт ***artisan***  
+    по расписанию раз в час  
+    
+    Пример в linux:
+    ```
+    * * * * * docker-compose -f /path/to/work/folder/docker-compose.yml exec app php artisan schedule:run >>/dev/null 2>&1
+    ```
+
 1. Сайт доступен на <a href="http://localhost:8080/" target="_blank">http://localhost:8080/</a>
 
-
-<!-- Так как докер нужне, чтоб поднять контейнер с ***mysql***,
-вам для работы понадобится установленный ***php 7.1***  
-Проблема в композере докера, там композер с php версии 7.0.7,  
-а нужна версия 7.1.3 для ларавеля...  -->
-<!-- 
-
-1. Npm.  
-    Выполните команду в папке с проектом
-    ```
-    npm install
-    ```
-
-1. Миграции.  
-    из папки проекта
-    ```
-    php artisan migrate
-    ```
-1. Сиды.  
-    из папки проекта
-    ```
-    php artisan db:seed
-    ```
-    Для сброса миграций и сидов
-    ```
-    php artisan migrate:refresh --seed
-    ```
-1. На сервере запустите планировщик задач  
-    который будет запускать средствами ***php*** скрипт ***artisan***  
-    по расписанию раз в час
-    ```
-    php /path/to/artisan schedule:run
-    ```
-1. пока не придумал
--->
+1. phpmyadmin доступен по адресу <a href="http://localhost:8081/" target="_blank">http://localhost:8081/</a>
 
 # Текст задания
 Задача

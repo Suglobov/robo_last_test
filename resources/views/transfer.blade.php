@@ -10,7 +10,7 @@
                     </tr>
                     <tr>
                         <td>{{ $selectuser }}</td>
-                        <th>{{ $userCurrent['amount'] - $userCurrent['deferred'] }}</th>
+                        <th class="uk-text-primary">{{ $userCurrent['amount'] - $userCurrent['deferred'] }}</th>
                     </tr>
                 </table>
                 <form id="operationForm"
@@ -30,8 +30,7 @@
                             </select>
                         </div>
                     </div>
-                    <div class="uk-margin"
-                         uk-tooltip="title: Максимальная сумма: {{ $userCurrent['amount'] - $userCurrent['deferred'] }};">
+                    <div class="uk-margin">
                         <label class="uk-form-label" for="number1">Сумма перевода</label>
                         <div class="uk-form-controls">
                             <input class="uk-input"
@@ -42,6 +41,7 @@
                                    max="{{ $userCurrent['amount'] - $userCurrent['deferred'] }}"
                                    value="0"
                                    required
+                                   uk-tooltip="title: Максимальная сумма: {{ $userCurrent['amount'] - $userCurrent['deferred'] }};"
                             >
                         </div>
                     </div>
@@ -55,6 +55,7 @@
                                        name="date"
                                        {{--min="2017-06-01T08:30"--}}
                                        required
+                                       uk-tooltip="title: Запас времени на опирацию<br>30 минут.<br>Время округлится до часа;"
                                 >
                             </div>
                         </div>
@@ -66,7 +67,7 @@
                            required
                     >
                     <div class="uk-margin">
-                        <button class="uk-button uk-button-default">Перевод</button>
+                        <button class="uk-button uk-button-primary">Перевод</button>
                     </div>
                 </form>
             </div>

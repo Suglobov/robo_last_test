@@ -46,45 +46,66 @@ class DefferredOperationController extends Controller
             return redirect('/')->withErrors(['Не верный id пользователя назначения']);
         }
 
-        // проверим сумму, если 0 - ничего не делаем
-        if ($summ == 0) {
-            return redirect('/');
+        // проверка на перевод самому себе
+        if ($selectUser == $userTo) {
+            return redirect('/')->withErrors(['Самому себе нельзя переводить']);
         }
+
+        // проверим сумму на 0
+        if ($summ == 0) {
+            return redirect('/')->withErrors(['Сумма перевода не должна быть 0']);
+        }
+
         $selectUserFromDb = array_values($selectUserFromDb);
         $deferredDB = DB::table('defferred_operations')
             ->select(DB::raw('sum(amount) as sum, user_id_from'))
             ->where('user_id_from', $selectUserFromDb[0]->id)
+            ->where('operation_completed', false)
             ->groupBy('user_id_from')
             ->get();
         $deferred = count($deferredDB) === 0 ? 0 : $deferredDB[0]->sum;
         $available = $selectUserFromDb[0]->amount - $deferred;
-        //        print_r($available);
 
         // проверка суммы на доспустимое значение
         if ($available < $summ) {
             return redirect('/')->withErrors(['Сумма превышает допустимое значение']);
         }
 
-        //        $operationDate = \DateTime::createFromFormat(
-        //            'Y-m-dTH:i:s',
-        //            $request->input('date'));
-        echo '<pre>';
         $serverDate = new Carbon();
         $userDate = new Carbon($dateNow);
         $diffHoursDate = $userDate->diffInHours($serverDate, false);
 
         $operanionDate = new Carbon($date);
-        echo '$operanionDate before: ' . print_r($operanionDate, 1). PHP_EOL;
+        $operanionDate->minute = 0;
+        $operanionDate->second = 0;
         $operanionDate->addHour($diffHoursDate);
-        echo '$operanionDate after: ' . print_r($operanionDate, 1). PHP_EOL;
 
-        echo '$userDate: ' . print_r($userDate, 1). PHP_EOL;
-        echo '$serverDate: ' . print_r($serverDate, 1). PHP_EOL;
-        echo '$diffHoursDate: ' . print_r($diffHoursDate, 1). PHP_EOL;
+        // проверка времени операции.
+        if ($serverDate->diffInMinutes($operanionDate) < 30) {
+            return redirect('/')->withErrors(['Мало времени на операцию, надо минимум 30 минут']);
+        }
 
+        // проверка на просроченные операции
+        $overdue_operations = DB::table('defferred_operations')
+            ->select(DB::raw('*'))
+            ->whereRaw('timestamp(`operation_datetime`) < NOW()')
+            ->where('operation_completed', false)
+            ->get();
+        if (count($overdue_operations)) {
+            $request->session()->put('overdue_operations', 'есть просроченные операции!');
+        } else {
+            $request->session()->put('overdue_operations', '');
+        }
 
-        //        $date1 = \DateTime::createFromFormat('j-M-Y', '15-Feb-2009')->format('Y-m-d');
-        //        echo $date1;
-        //        print_r($operationDate->format('Y-m-dTH:i:s'));
+        DB::transaction(function () use ($selectUser, $userTo, $summ, $operanionDate) {
+            DB::table('defferred_operations')->insert([
+                'user_id_from'        => $selectUser,
+                'user_id_to'          => $userTo,
+                'amount'              => $summ,
+                'operation_datetime'  => $operanionDate,
+                'operation_completed' => false,
+            ]);
+        });
+        return redirect('/')->with('success', 'Операция запланирована');
     }
 }
