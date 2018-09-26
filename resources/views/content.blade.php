@@ -12,6 +12,27 @@
      @if(!session('overdue_operations')) hidden @endif>
     <div>{{ session('overdue_operations') }}</div>
 </div>
+<div class="uk-card uk-card-default uk-card-body uk-margin-bottom uk-alert-danger"
+     @if(!count($errorsFromDb)) hidden @endif>
+    <div class="uk-overflow-auto">
+        <table class="uk-table uk-table-striped uk-table-small uk-table-middle uk-text-nowrap">
+            <tr>
+                <th>id ошибки</th>
+                <th>id ошибочной операции</th>
+                <th>дата</th>
+                <th>сообщение</th>
+            </tr>
+            @foreach ($errorsFromDb as $erDb)
+                <tr>
+                    <th>{{ $erDb->id }}</th>
+                    <th>{{ $erDb->defferred_operations_id }}</th>
+                    <th>{{ $erDb->date }}</th>
+                    <th>{{ $erDb->message }}</th>
+                </tr>
+            @endforeach
+        </table>
+    </div>
+</div>
 <div class="uk-card uk-card-default uk-card-body uk-card-small uk-margin-bottom">
     <ul uk-accordion>
         <li class="">

@@ -2,10 +2,10 @@
 
 namespace App\Console;
 
+use Carbon\Carbon;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Session;
 
 class Kernel extends ConsoleKernel
 {
@@ -30,41 +30,50 @@ class Kernel extends ConsoleKernel
         // $schedule->command('inspire')
         //          ->hourly();
         $schedule->call(function () {
-            return;
-            $defferred_operations = DB::table('defferred_operations')
-                ->where('operation_completed', false)
-                ->where('operation_datetime', '<', 'NOW()')
-                ->get();
-
+            $defferred_operations = DB::select(
+                'SELECT * FROM `defferred_operations`
+                  WHERE timestamp(operation_datetime) < NOW()
+                  AND operation_completed = false'
+            );
+//            echo print_r($defferred_operations, 1) . PHP_EOL;
             foreach ($defferred_operations as $do) {
-                DB::transaction(function () use ($do) {
-                    // понижаем баланс
-                    DB::table('users')
-                        ->where('id', $do->user_id_from)
-                        ->decrement('amount', $do->amount);
+                DB::beginTransaction();
+                try {
                     $user_from = DB::table('users')->where('id', $do->user_id_from)->get();
-                    //                    print_r($user_from[0]->amount);
-                    if ($user_from[0]->amount < 0) {
-                        Session::put(
-                            'warning',
-                            'Была попытка понизить банас пользователя ' . $user_from->id . ' ниже нуля'
-                        );
-                        throw new \Exception(
-                            'Была попытка понизить банас пользователя '
-                            . $user_from->id .
-                            ' ниже нуля'
-                        );
+                    if ($user_from[0]->amount - $do->amount < 0) {
+                        $message = 'попытка понизить банас пользователя '
+                            . $user_from[0]->id .
+                            ' ниже нуля.';
+                        $tmpError = DB::table('errors_defferred_operations')
+                            ->where('defferred_operations_id', $do->id)
+                            ->get();
+                        if (count($tmpError) === 0) {
+//                            echo print_r(Carbon::now()->toDateTimeString(), 1) . PHP_EOL;
+                            DB::table('errors_defferred_operations')
+                                    ->insert([
+                                        'defferred_operations_id' => $do->id,
+                                        'date'                    => Carbon::now(),
+                                        'message'                 => $message,
+                                    ]);
+                        }
+                    } else {
+                        // понижаем баланс
+                        DB::table('users')
+                            ->where('id', $do->user_id_from)
+                            ->decrement('amount', $do->amount);
+                        // повышаем баланс
+                        DB::table('users')
+                            ->where('id', $do->user_id_to)
+                            ->increment('amount', $do->amount);
+                        DB::table('defferred_operations')
+                            ->where('id', $do->id)
+                            ->update(['operation_completed' => true]);
                     }
-
-                    // повышаем баланс
-                    DB::table('users')
-                        ->where('id', $do->user_id_to)
-                        ->increment('amount', $do->amount);
-
-                    DB::table('defferred_operations')
-                        ->where('id', $do->id)
-                        ->update(['operation_completed' => true]);
-                });
+                    DB::commit();
+                } catch (\Exception $e) {
+                    print_r('rollback');
+                    DB::rollback();
+                }
             }
         })->everyMinute();
     }

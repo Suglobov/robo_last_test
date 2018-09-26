@@ -20,6 +20,7 @@
     <?php
     $serverDate = new Carbon\Carbon();
     $users = DB::table('users')->get();
+    $errorsFromDb = DB::table('errors_defferred_operations')->get();
     $defferred_operations = DB::table('defferred_operations')
         ->where('operation_completed', false)
         ->orderBy('operation_datetime')
@@ -64,14 +65,13 @@
              SELECT MAX(d_max.id)
              FROM defferred_operations AS d_max
              WHERE d_max.user_id_from = u.id
-          )
-      '
+          )'
     );
-//    echo '<pre>';
-//    print_r(new \Date());
+    //    echo '<pre>';
+    //    print_r(new \Date());
     //    die();
     ?>
-    @include('content', [$users, $defferred_operations, $usersArr, $usersWithOneLastOp, $serverDate])
+    @include('content', [$errorsFromDb, $users, $defferred_operations, $usersArr, $usersWithOneLastOp, $serverDate])
 </div>
 </body>
 </html>
