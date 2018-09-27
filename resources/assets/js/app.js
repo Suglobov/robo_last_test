@@ -36,12 +36,16 @@ window.addEventListener('load', () => {
         }
     };
 
-    testInput(true);
-    setInterval(testInput, 60000);
+    if (date1) {
+        testInput(true);
+        setInterval(testInput, 60000);
+    }
 
-    form.addEventListener('submit', () => {
-        dateNow.value = dateFotmatInput(new Date());
-    });
+    if (form) {
+        form.addEventListener('submit', () => {
+            dateNow.value = dateFotmatInput(new Date());
+        });
+    }
 
 
     let serveDateDiv = document.getElementById('serveDate');
